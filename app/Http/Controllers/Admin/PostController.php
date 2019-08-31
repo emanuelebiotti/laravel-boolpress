@@ -65,9 +65,14 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($post_id)
     {
-        //
+        $post = Post::find($post_id);
+        $categories = Category::all();
+        if(empty($post)){
+          abort(404);
+        }
+        return view('admin.posts.show', compact('posts'));
     }
 
     /**
@@ -76,9 +81,13 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($post_id)
     {
-        //
+      $post = Post::find($post_id);
+      if(empty($post)){
+        abort(404);
+      }
+      return view('admin.posts.edit', compact('post'));
     }
 
     /**
@@ -88,9 +97,20 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $post_id)
     {
-        //
+      $validatedData = $request->validate([
+        'title' => 'required|unique:posts|max:255',
+        'author' => 'required',
+        'content' => 'required',
+        // 'category_id'=> 'required'
+      ]);
+
+      $dati = $request->all();
+      $post = Post::find($post_id);
+      $post->update($dati);
+
+      return redirect()->route('admin.posts.index');
     }
 
     /**
@@ -99,8 +119,10 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($post_id)
     {
-        //
+      $post = Post::find($post_id);
+      $post->delete();
+      return redirect()->route('admin.posts.index');
     }
 }
